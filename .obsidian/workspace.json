@@ -36,20 +36,6 @@
             }
           },
           {
-            "id": "be2a1bdddf37f6d9",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "친절한 SQL튜닝 정리노트 (4장).md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "친절한 SQL튜닝 정리노트 (4장)"
-            }
-          },
-          {
             "id": "7f61cd09b7fe1c31",
             "type": "leaf",
             "state": {
@@ -61,6 +47,20 @@
               },
               "icon": "lucide-file",
               "title": "친절한 SQL튜닝 정리노트 (3장)"
+            }
+          },
+          {
+            "id": "be2a1bdddf37f6d9",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "친절한 SQL튜닝 정리노트 (4장).md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "친절한 SQL튜닝 정리노트 (4장)"
             }
           },
           {
@@ -238,12 +238,12 @@
   },
   "active": "92351ba827ca7cfc",
   "lastOpenFiles": [
+    "친절한 SQL튜닝 정리노트 (2장).md",
+    "실무 SQL 튜닝할 때 팁.md",
+    "친절한 SQL튜닝 정리노트 (1장).md",
     "친절한 SQL튜닝 정리노트 (3장).md",
     "친절한 SQL튜닝 정리노트 (5장).md",
     "친절한 SQL튜닝 정리노트 (4장).md",
-    "친절한 SQL튜닝 정리노트 (2장).md",
-    "친절한 SQL튜닝 정리노트 (1장).md",
-    "실무 SQL 튜닝할 때 팁.md",
     "Oracle SQL 실습 및 정리.md",
     "Untitled",
     "ㅇ.md"
