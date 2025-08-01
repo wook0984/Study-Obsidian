@@ -377,3 +377,201 @@ ORDER BY NAME ASC               -- 이름(NAME)을 오름차순(사전순)으로
 FETCH FIRST 5 ROWS ONLY;        -- 상위 5개 행만 출력합니다. (Oracle 12c 이상)
 ```
 
+---
+# Oracle SQL 심화 학습
+
+---
+
+## I. 고급 SQL 쿼리 및 개념
+
+### 1. 윈도우 함수 (Window Functions)
+
+윈도우 함수는 `GROUP BY`와 유사하게 행의 집합에 대해 연산을 수행하지만, `GROUP BY`처럼 여러 행을 하나의 결과 행으로 그룹화하지 않습니다. 대신, 각 행에 대한 계산 결과를 해당 행에 그대로 반환합니다. 분석 및 순위 계산에 매우 유용합니다.
+
+-   **주요 윈도우 함수:**
+    -   `RANK()`: 순위를 매기며, 같은 값이면 같은 순위를 부여하고 다음 순위는 해당 개수만큼 건너뜁니다. (예: 1, 2, 2, 4)
+    -   `DENSE_RANK()`: 같은 값에 같은 순위를 부여하지만, 다음 순위를 건너뛰지 않습니다. (예: 1, 2, 2, 3)
+    -   `ROW_NUMBER()`: 순위와 상관없이 고유한 번호를 부여합니다. (예: 1, 2, 3, 4)
+    -   `LEAD(컬럼, N)`: 현재 행에서 N번째 뒤에 있는 행의 컬럼 값을 가져옵니다.
+    -   `LAG(컬럼, N)`: 현재 행에서 N번째 앞에 있는 행의 컬럼 값을 가져옵니다.
+    -   `SUM() OVER (PARTITION BY ... ORDER BY ...)`: 파티션(그룹) 내에서 누적 합계를 계산합니다.
+
+#### **실습 1: 부서별 급여 순위 매기기**
+
+각 부서(dept_id) 내에서 직원들의 급여(salary)가 높은 순서대로 순위를 매겨 이름, 부서, 급여, 순위를 출력하시오.
+
+```sql
+SELECT
+    NAME,
+    DEPT_ID,
+    SALARY,
+    RANK() OVER (PARTITION BY DEPT_ID ORDER BY SALARY DESC) AS SALARY_RANK,
+    DENSE_RANK() OVER (PARTITION BY DEPT_ID ORDER BY SALARY DESC) AS SALARY_DENSE_RANK,
+    ROW_NUMBER() OVER (PARTITION BY DEPT_ID ORDER BY SALARY DESC) AS SALARY_ROW_NUM
+FROM S_EMP;
+```
+
+---
+
+### 2. 공통 테이블 표현식 (CTE - Common Table Expressions)
+
+CTE는 `WITH` 절을 사용하여 정의하는 임시 결과 집합입니다. 복잡한 쿼리를 여러 개의 논리적인 부분으로 나누어 가독성을 높이고 재사용성을 증대시킵니다. 특히, 여러 단계의 서브쿼리가 필요한 경우에 유용합니다.
+
+#### **실습 2: 부서별 평균 급여보다 많이 받는 직원 찾기 (CTE 활용)**
+
+CTE를 사용하여 각 부서의 평균 급여를 먼저 계산한 후, 이 정보를 바탕으로 해당 부서의 평균 급여보다 많이 받는 직원들의 이름, 부서, 급여를 출력하시오.
+
+```sql
+WITH DEPT_AVG_SALARY AS (
+    SELECT
+        DEPT_ID,
+        AVG(SALARY) AS AVG_SAL
+    FROM S_EMP
+    GROUP BY DEPT_ID
+)
+SELECT
+    E.NAME,
+    E.DEPT_ID,
+    E.SALARY
+FROM S_EMP E
+JOIN DEPT_AVG_SALARY D
+  ON E.DEPT_ID = D.DEPT_ID
+WHERE E.SALARY > D.AVG_SAL;
+```
+
+---
+
+### 3. 집합 연산자 (Set Operators)
+
+여러 `SELECT` 문의 결과 집합을 하나로 결합하는 데 사용됩니다.
+
+-   `UNION`: 두 결과 집합을 합치되, 중복된 행은 제거합니다.
+-   `UNION ALL`: 두 결과 집합을 합치되, 중복된 행을 그대로 포함합니다. (성능상 이점)
+-   `INTERSECT`: 두 결과 집합에 모두 존재하는 행만 반환합니다. (교집합)
+-   `MINUS`: 첫 번째 결과 집합에는 있지만 두 번째 결과 집합에는 없는 행을 반환합니다. (차집합)
+
+#### **실습 3: 특정 부서 직원과 특정 직책 직원 합치기**
+
+101번 부서에 속한 직원과 직책이 '과장'인 모든 직원의 목록을 중복을 제거하여 출력하시오.
+
+```sql
+SELECT ID, NAME, TITLE, DEPT_ID FROM S_EMP WHERE DEPT_ID = 101
+UNION
+SELECT ID, NAME, TITLE, DEPT_ID FROM S_EMP WHERE TITLE = '과장';
+```
+
+---
+
+## II. 데이터 정의어(DDL) 및 데이터 조작어(DML) 심화
+
+### 1. 테이블 관리 (Table Management)
+
+-   `CREATE TABLE`: 새로운 테이블을 생성합니다.
+-   `ALTER TABLE`: 기존 테이블의 구조를 변경합니다. (`ADD`, `MODIFY`, `DROP COLUMN`)
+-   `TRUNCATE TABLE`: 테이블의 모든 행을 삭제하며, `DELETE`보다 빠르고 롤백이 불가능합니다.
+
+#### **실습 4: 제약조건을 포함한 신규 테이블 생성**
+
+```sql
+CREATE TABLE S_PROJECT (
+    ID NUMBER(7) PRIMARY KEY, -- 프로젝트 ID (기본 키)
+    NAME VARCHAR2(50) NOT NULL, -- 프로젝트명 (NULL 불허)
+    START_DATE DATE, -- 시작일
+    END_DATE DATE, -- 종료일
+    MANAGER_ID NUMBER(7) REFERENCES S_EMP(ID) -- 담당 매니저 (S_EMP 테이블의 ID 참조)
+);
+```
+
+### 2. DML 심화
+
+-   `MERGE`: 조건에 따라 데이터가 있으면 `UPDATE`, 없으면 `INSERT`를 수행하여 테이블을 병합합니다.
+
+#### **실습 5: MERGE를 이용한 직원 정보 동기화**
+
+`S_EMP_BACKUP` 테이블에 `S_EMP` 테이블의 데이터를 동기화합니다. 사번(ID)이 존재하면 이름과 급여를 업데이트하고, 존재하지 않으면 새로운 직원 정보를 추가합니다.
+
+```sql
+MERGE INTO S_EMP_BACKUP B
+USING S_EMP E
+ON (B.ID = E.ID)
+WHEN MATCHED THEN
+    UPDATE SET
+        B.NAME = E.NAME,
+        B.SALARY = E.SALARY
+WHEN NOT MATCHED THEN
+    INSERT (ID, NAME, TITLE, DEPT_ID, SALARY)
+    VALUES (E.ID, E.NAME, E.TITLE, E.DEPT_ID, E.SALARY);
+```
+
+---
+
+## III. 트랜잭션 제어 및 Oracle 주요 함수
+
+### 1. 트랜잭션 제어어 (TCL)
+
+-   `COMMIT`: 모든 변경사항을 데이터베이스에 영구적으로 저장합니다.
+-   `ROLLBACK`: 마지막 `COMMIT` 이후의 모든 변경사항을 취소합니다.
+-   `SAVEPOINT`: 트랜잭션 내에 저장점을 만들어, 전체가 아닌 특정 지점까지만 `ROLLBACK` 할 수 있도록 합니다.
+
+### 2. Oracle 주요 내장 함수
+
+-   **NULL 처리**: `NVL(A, B)` (A가 NULL이면 B 반환), `NVL2(A, B, C)` (A가 NULL이 아니면 B, NULL이면 C 반환), `COALESCE(A, B, ...)` (첫 번째로 NULL이 아닌 값 반환)
+-   **조건부 함수**: `DECODE(값, 조건1, 결과1, 조건2, 결과2, ..., 기본결과)` (CASE 문과 유사하게 동작)
+
+#### **실습 6: NVL과 DECODE를 활용한 보너스 계산**
+
+직원의 직책(title)에 따라 보너스를 계산하여 이름, 직책, 급여, 보너스를 출력합니다. '부장'은 급여의 20%, '과장'은 15%, 나머지는 10%를 보너스로 지급하며, MANAGER_ID가 없는 경우(NULL) 보너스를 0으로 처리합니다.
+
+```sql
+SELECT
+    NAME,
+    TITLE,
+    SALARY,
+    NVL(DECODE(TITLE,
+        '부장', SALARY * 0.2,
+        '과장', SALARY * 0.15,
+        SALARY * 0.1
+    ), 0) AS BONUS
+FROM S_EMP;
+```
+
+---
+
+## IV. 데이터베이스 객체 및 성능
+
+### 1. 뷰 (View)
+
+뷰는 하나 이상의 테이블을 기반으로 만들어진 가상의 테이블입니다. 복잡한 쿼리를 단순화하고, 특정 데이터만 선택적으로 노출하여 보안을 강화하는 데 사용됩니다.
+
+#### **실습 7: 서울 지역 근무 직원 뷰 생성**
+
+서울 지역에 근무하는 직원들의 사번, 이름, 직책, 부서명, 지역명을 포함하는 뷰를 생성합니다.
+
+```sql
+CREATE OR REPLACE VIEW VW_EMP_SEOUL AS
+SELECT
+    E.ID,
+    E.NAME,
+    E.TITLE,
+    D.NAME AS DEPT_NAME,
+    R.NAME AS REGION_NAME
+FROM S_EMP E
+JOIN S_DEPT D ON E.DEPT_ID = D.ID
+JOIN S_REGION R ON D.REGION_ID = R.ID
+WHERE R.NAME = '서울';
+
+-- 뷰 조회
+SELECT * FROM VW_EMP_SEOUL;
+```
+
+### 2. 인덱스 (Index)
+
+인덱스는 테이블의 특정 컬럼에 대한 검색 속도를 향상시키기 위한 데이터 구조입니다. `WHERE` 절이나 `JOIN` 조건에서 자주 사용되는 컬럼에 생성하면 효과적입니다.
+
+#### **실습 8: 이름(NAME) 컬럼에 인덱스 생성**
+
+`S_EMP` 테이블의 `NAME` 컬럼으로 직원을 검색하는 경우가 많다고 가정하고, 해당 컬럼에 인덱스를 생성합니다.
+
+```sql
+CREATE INDEX IDX_EMP_NAME ON S_EMP(NAME);
+```
