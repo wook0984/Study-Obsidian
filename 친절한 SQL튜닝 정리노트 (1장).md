@@ -120,7 +120,94 @@ WHERE e.부서코드 = d.부서코드;
 SELECT /*+ FULL(e) */ *
 FROM 직원 e;
 ```
+# SQL 옵티마이저 힌트와 자바 애너테이션 비교
 
+## 유사점 설명
+
+SQL 옵티마이저 힌트와 자바 애너테이션은 둘 다 "코드에 지시사항을 추가하는 방식"이라는 점에서 유사하다:
+
+Java
+
+```
+// 자바 애너테이션
+@Override
+public void method() { ... }
+
+// SQL 힌트
+SELECT /*+ INDEX(employees emp_idx) */ * FROM employees;
+```
+
+### 공통점:
+
+1. **메타데이터 제공**: 둘 다 실행 엔진에 추가 정보를 제공한다
+2. **원래 코드 변경 없이 동작 수정**: 기본 코드/쿼리 의미는 유지하면서 처리 방식만 변경한다
+3. **특별한 구문으로 표시**: 일반 코드/쿼리와 구분되는 특별한 표기법을 사용한다
+
+## "문법이 아니기 때문에 검증 불가" 하다(?)
+
+ **SQL 힌트는 문법적으로만 검사되고 의미적 유효성은 실행 시점에만 확인된다**는 의미다.
+
+예시로 비교해보면 일단
+
+### 1.  자바 애너테이션의 검증
+
+Java
+
+```
+@Table(name = "employees")  // 컴파일 시점에 검증됨
+class Employee { ... }
+
+@Column(name = "nonexistent_column")  // 타입 체크로 검증 가능
+private String name;
+```
+
+- 컴파일러가 애너테이션 속성이 올바른지 검사한다
+- 틀린 속성명이나 타입은 컴파일 오류가 발생한다
+
+### 2. SQL 힌트의 검증
+
+SQL
+
+```
+SELECT /*+ INDEX(employees emp_idx) */ * FROM employees;
+```
+
+- 문법상 힌트 형식은 맞지만 **실제 emp_idx 인덱스가 존재하는지**는 실행 전까지 확인할 수 없다
+- 인덱스가 없어도 문법 오류가 아니라 **그냥 힌트를 무시**하고 실행된다
+
+SQL
+
+```
+-- 존재하지 않는 인덱스를 지정해도 문법 오류 없음
+SELECT /*+ INDEX(employees nonexistent_idx) */ * FROM employees;
+```
+
+## 실제 차이점 예시
+
+### 자바 애너테이션:
+
+Java
+
+```
+@SuppressWarnings("unchecked")  // 컴파일러가 이 속성 검증함
+public List<String> getNames() { ... }
+
+@SuppressWarnings("invalid_option")  // 컴파일 오류 발생!
+public void process() { ... }
+```
+
+### SQL 힌트:
+
+SQL
+
+```
+-- 문법은 맞지만 실제 없는 인덱스라도 오류 없이 힌트만 무시됨
+SELECT /*+ INDEX(employees idx_salary) */ 
+FROM employees 
+WHERE salary > 5000;
+```
+
+SQL 힌트는 "제안"일 뿐 강제가 아니며, 힌트가 유효하지 않더라도 SQL은 실행된다. 이것이 "문법이 아니기 때문에 검증 불가"라는 의미다.
 # 추가 설명 옵티마이저의 실행계획 선택 과정
 
 아래 그림으로 데이터베이스 옵티마이저가 어떻게 실행계획을 선택하는지 알 수 있다:
