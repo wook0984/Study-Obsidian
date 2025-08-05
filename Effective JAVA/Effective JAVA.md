@@ -131,7 +131,7 @@ NutritionFacts cocaCola = new NutritionFacts.Builder(240, 8)
 
 ## 아이템 3. private 생성자나 열거 타입으로 싱글턴임을 보증하라
 
-싱글턴을 만드는 방법은 세 가지가 있습니다:
+싱글톤을 만드는 방법은 세 가지가 있습니다:
 
 1. **public static final 필드 방식**
 
@@ -587,18 +587,933 @@ static Comparator<Object> hashCodeOrder =
 ```
 
 4장 클래스와 인터페이스  
-아이템 15. 클래스와 멤버의 접근 권한을 최소화하라  
-아이템 16. public 클래스에서는 public 필드가 아닌 접근자 메서드를 사용하라  
-아이템 17. 변경 가능성을 최소화하라  
-아이템 18. 상속보다는 컴포지션을 사용하라  
-아이템 19. 상속을 고려해 설계하고 문서화하라. 그러지 않았다면 상속을 금지하라  
-아이템 20. 추상 클래스보다는 인터페이스를 우선하라  
-아이템 21. 인터페이스는 구현하는 쪽을 생각해 설계하라  
-아이템 22. 인터페이스는 타입을 정의하는 용도로만 사용하라  
-아이템 23. 태그 달린 클래스보다는 클래스 계층구조를 활용하라  
-아이템 24. 멤버 클래스는 되도록 static으로 만들라  
-아이템 25. 톱레벨 클래스는 한 파일에 하나만 담으라  
-  
+## 아이템 15. 클래스와 멤버의 접근 권한을 최소화하라
+
+### 정보 은닉(캡슐화)의 개념
+
+정보 은닉은 소프트웨어 설계의 근간이 되는 원리로, 시스템의 구성요소를 서로 독립시켜 개발, 테스트, 최적화, 사용, 이해, 수정을 개별적으로 할 수 있게 합니다. 이는 개발 속도를 높이고, 관리 비용을 낮추며, 성능 최적화에 도움을 주고, 재사용성을 높입니다.
+
+### 자바의 접근 제한자
+
+- **private**: 멤버를 선언한 톱레벨 클래스에서만 접근 가능
+- **package-private(default)**: 멤버가 소속된 패키지 안의 모든 클래스에서 접근 가능
+- **protected**: package-private의 접근 범위를 포함하며, 이 멤버를 선언한 클래스의 하위 클래스에서도 접근 가능
+- **public**: 모든 곳에서 접근 가능
+
+### 접근성을 최소화하는 방법
+
+Java
+
+```
+// 잘못된 예 - public 클래스의 인스턴스 필드는 되도록 public이 아니어야 한다
+public class Point {
+    public double x;
+    public double y;
+}
+
+// 개선된 예 - 필드를 private으로 만들고 접근자 제공
+public class Point {
+    private double x;
+    private double y;
+    
+    public Point(double x, double y) {
+        this.x = x;
+        this.y = y;
+    }
+    
+    public double getX() { return x; }
+    public double getY() { return y; }
+    
+    public void setX(double x) { this.x = x; }
+    public void setY(double y) { this.y = y; }
+}
+```
+
+### 주의사항
+
+- 클래스의 공개 API를 세심히 설계한 후, 그 외의 모든 멤버는 private으로 만들자
+- public 클래스의 인스턴스 필드는 되도록 public이 아니어야 한다
+- public static final 필드는 기본 타입 값이나 불변 객체를 참조해야 한다
+
+Java
+
+```
+// 보안 허점이 있는 예
+public static final Thing[] VALUES = { ... };
+
+// 해결책 1: private 배열과 public 불변 리스트
+private static final Thing[] PRIVATE_VALUES = { ... };
+public static final List<Thing> VALUES = 
+    Collections.unmodifiableList(Arrays.asList(PRIVATE_VALUES));
+
+// 해결책 2: private 배열과 복사본 반환 메서드
+private static final Thing[] PRIVATE_VALUES = { ... };
+public static final Thing[] values() {
+    return PRIVATE_VALUES.clone();
+}
+```
+
+## 아이템 16. public 클래스에서는 public 필드가 아닌 접근자 메서드를 사용하라
+
+### 데이터 캡슐화의 중요성
+
+public 클래스가 필드를 공개하면 이를 사용하는 클라이언트가 생겨나므로 내부 표현을 바꾸기 어려워집니다.
+
+Java
+
+```
+// 나쁜 예 - 퇴보한 클래스
+class Point {
+    public double x;
+    public double y;
+}
+
+// 좋은 예 - 접근자와 변경자 메서드를 활용한 데이터 캡슐화
+public class Point {
+    private double x;
+    private double y;
+    
+    public Point(double x, double y) {
+        this.x = x;
+        this.y = y;
+    }
+    
+    public double getX() { return x; }
+    public double getY() { return y; }
+    
+    public void setX(double x) { this.x = x; }
+    public void setY(double y) { this.y = y; }
+}
+```
+
+### 예외 상황
+
+package-private 클래스나 private 중첩 클래스라면 데이터 필드를 노출한다 해도 문제가 없습니다. 클래스가 표현하려는 추상 개념만 올바르게 표현해주면 됩니다.
+
+## 아이템 17. 변경 가능성을 최소화하라
+
+### 불변 클래스의 개념
+
+불변 클래스란 인스턴스의 내부 값을 수정할 수 없는 클래스입니다. 불변 인스턴스에 간직된 정보는 고정되어 객체가 파괴되는 순간까지 절대 달라지지 않습니다.
+
+### 불변 클래스를 만드는 다섯 가지 규칙
+
+1. **객체의 상태를 변경하는 메서드(변경자)를 제공하지 않는다**
+2. **클래스를 확장할 수 없도록 한다** (final 클래스로 선언)
+3. **모든 필드를 final로 선언한다**
+4. **모든 필드를 private으로 선언한다**
+5. **자신 외에는 내부의 가변 컴포넌트에 접근할 수 없도록 한다**
+
+### 불변 클래스 예시
+
+Java
+
+```
+public final class Complex {
+    private final double re;
+    private final double im;
+    
+    public Complex(double re, double im) {
+        this.re = re;
+        this.im = im;
+    }
+    
+    public double realPart() { return re; }
+    public double imaginaryPart() { return im; }
+    
+    public Complex plus(Complex c) {
+        return new Complex(re + c.re, im + c.im);
+    }
+    
+    public Complex minus(Complex c) {
+        return new Complex(re - c.re, im - c.im);
+    }
+    
+    public Complex times(Complex c) {
+        return new Complex(re * c.re - im * c.im,
+                          re * c.im + im * c.re);
+    }
+    
+    public Complex dividedBy(Complex c) {
+        double tmp = c.re * c.re + c.im * c.im;
+        return new Complex((re * c.re + im * c.im) / tmp,
+                          (im * c.re - re * c.im) / tmp);
+    }
+    
+    @Override public boolean equals(Object o) {
+        if (o == this) return true;
+        if (!(o instanceof Complex)) return false;
+        Complex c = (Complex) o;
+        return Double.compare(c.re, re) == 0
+            && Double.compare(c.im, im) == 0;
+    }
+    
+    @Override public int hashCode() {
+        return 31 * Double.hashCode(re) + Double.hashCode(im);
+    }
+    
+    @Override public String toString() {
+        return "(" + re + " + " + im + "i)";
+    }
+}
+```
+
+### 불변 클래스의 장점
+
+1. **단순하다**: 생성 시점의 상태를 파괴될 때까지 그대로 간직
+2. **스레드 안전하며 따로 동기화할 필요 없다**
+3. **안심하고 공유할 수 있다**
+4. **불변 객체끼리는 내부 데이터를 공유할 수 있다**
+5. **객체를 만들 때 다른 불변 객체들을 구성요소로 사용하면 이점이 많다**
+6. **실패 원자성을 제공한다**: 메서드에서 예외가 발생해도 객체는 여전히 유효한 상태
+
+### 불변 클래스의 단점과 대처법
+
+값이 다르면 반드시 독립된 객체로 만들어야 하므로, 값의 가짓수가 많다면 비용이 큽니다.
+
+Java
+
+```
+// 가변 동반 클래스를 제공하는 예
+// String(불변)의 가변 동반 클래스는 StringBuilder
+BigInteger moby = new BigInteger("1000000");
+moby = moby.flipBit(0); // 새로운 BigInteger 인스턴스 생성
+
+// 다단계 연산을 위한 가변 동반 클래스 사용
+StringBuilder sb = new StringBuilder();
+for (String s : strings) {
+    sb.append(s);
+}
+String result = sb.toString();
+```
+
+## 아이템 18. 상속보다는 컴포지션을 사용하라
+
+### 상속의 위험성
+
+상속은 코드를 재사용하는 강력한 수단이지만, 잘못 사용하면 오류를 내기 쉬운 소프트웨어를 만들게 됩니다. 상위 클래스와 하위 클래스를 모두 같은 프로그래머가 통제하는 패키지 안에서라면 상속도 안전한 방법이지만, 일반적인 구체 클래스를 패키지 경계를 넘어 상속하는 일은 위험합니다.
+
+### 메서드 호출과 달리 상속은 캡슐화를 깨뜨린다
+
+Java
+
+```
+// 잘못된 예 - 상속을 잘못 사용했다!
+public class InstrumentedHashSet<E> extends HashSet<E> {
+    private int addCount = 0;
+    
+    public InstrumentedHashSet() { }
+    
+    public InstrumentedHashSet(int initCap, float loadFactor) {
+        super(initCap, loadFactor);
+    }
+    
+    @Override public boolean add(E e) {
+        addCount++;
+        return super.add(e);
+    }
+    
+    @Override public boolean addAll(Collection<? extends E> c) {
+        addCount += c.size();
+        return super.addAll(c); // HashSet의 addAll은 add를 호출한다!
+    }
+    
+    public int getAddCount() {
+        return addCount;
+    }
+}
+```
+
+### 컴포지션(composition)을 사용한 해결책
+
+기존 클래스를 확장하는 대신, 새로운 클래스를 만들고 private 필드로 기존 클래스의 인스턴스를 참조하게 합니다.
+
+Java
+
+```
+// 래퍼 클래스 - 상속 대신 컴포지션을 사용했다
+public class InstrumentedSet<E> extends ForwardingSet<E> {
+    private int addCount = 0;
+    
+    public InstrumentedSet(Set<E> s) {
+        super(s);
+    }
+    
+    @Override public boolean add(E e) {
+        addCount++;
+        return super.add(e);
+    }
+    
+    @Override public boolean addAll(Collection<? extends E> c) {
+        addCount += c.size();
+        return super.addAll(c);
+    }
+    
+    public int getAddCount() {
+        return addCount;
+    }
+}
+
+// 재사용할 수 있는 전달 클래스
+public class ForwardingSet<E> implements Set<E> {
+    private final Set<E> s;
+    public ForwardingSet(Set<E> s) { this.s = s; }
+    
+    public void clear() { s.clear(); }
+    public boolean contains(Object o) { return s.contains(o); }
+    public boolean isEmpty() { return s.isEmpty(); }
+    public int size() { return s.size(); }
+    public Iterator<E> iterator() { return s.iterator(); }
+    public boolean add(E e) { return s.add(e); }
+    public boolean remove(Object o) { return s.remove(o); }
+    public boolean containsAll(Collection<?> c) { return s.containsAll(c); }
+    public boolean addAll(Collection<? extends E> c) { return s.addAll(c); }
+    public boolean removeAll(Collection<?> c) { return s.removeAll(c); }
+    public boolean retainAll(Collection<?> c) { return s.retainAll(c); }
+    public Object[] toArray() { return s.toArray(); }
+    public <T> T[] toArray(T[] a) { return s.toArray(a); }
+    @Override public boolean equals(Object o) { return s.equals(o); }
+    @Override public int hashCode() { return s.hashCode(); }
+    @Override public String toString() { return s.toString(); }
+}
+```
+
+### 데코레이터 패턴
+
+이러한 설계를 데코레이터 패턴이라고 합니다. 컴포지션과 전달의 조합은 넓은 의미로 위임(delegation)이라고 부릅니다.
+
+## 아이템 19. 상속을 고려해 설계하고 문서화하라. 그러지 않았다면 상속을 금지하라
+
+### 상속용 클래스 설계 시 주의사항
+
+1. **메서드를 재정의하면 어떤 일이 일어나는지 정확히 정리하여 문서로 남겨야 한다**
+2. **클래스의 내부 동작 과정 중간에 끼어들 수 있는 훅(hook)을 잘 선별하여 protected 메서드 형태로 공개해야 할 수도 있다**
+3. **상속용 클래스의 생성자는 직접적으로든 간접적으로든 재정의 가능 메서드를 호출해서는 안 된다**
+
+Java
+
+```
+public class Super {
+    // 잘못된 예 - 생성자가 재정의 가능 메서드를 호출한다
+    public Super() {
+        overrideMe();
+    }
+    
+    public void overrideMe() { }
+}
+
+public final class Sub extends Super {
+    private final Instant instant;
+    
+    Sub() {
+        instant = Instant.now();
+    }
+    
+    @Override public void overrideMe() {
+        System.out.println(instant); // 첫 번째 호출에서는 null을 출력한다!
+    }
+}
+```
+
+### 상속을 금지하는 방법
+
+1. **클래스를 final로 선언한다
+2. **모든 생성자를 private이나 package-private으로 선언하고 public 정적 팩터리를 만들어준다**
+
+Java
+
+```
+// final 클래스
+public final class ImmutableClass {
+    private final String value;
+    
+    public ImmutableClass(String value) {
+        this.value = value;
+    }
+}
+
+// 생성자를 private으로 하고 정적 팩터리 제공
+public class ComplexNumber {
+    private final double re;
+    private final double im;
+    
+    private ComplexNumber(double re, double im) {
+        this.re = re;
+        this.im = im;
+    }
+    
+    public static ComplexNumber valueOf(double re, double im) {
+        return new ComplexNumber(re, im);
+    }
+    
+    public static ComplexNumber valueOfPolar(double r, double theta) {
+        return new ComplexNumber(r * Math.cos(theta), r * Math.sin(theta));
+    }
+}
+```
+
+## 아이템 20. 추상 클래스보다는 인터페이스를 우선하라
+
+### 인터페이스와 추상 클래스의 차이점
+
+자바가 제공하는 다중 구현 메커니즘은 인터페이스와 추상 클래스입니다. Java 8부터 인터페이스도 디폴트 메서드를 제공할 수 있게 되어, 두 메커니즘 모두 인스턴스 메서드를 구현 형태로 제공할 수 있습니다.
+
+**가장 큰 차이점:**
+
+- 추상 클래스가 정의한 타입을 구현하는 클래스는 반드시 추상 클래스의 하위 클래스가 되어야 한다
+- 인터페이스가 선언한 메서드를 모두 정의하고 일반 규약을 잘 지킨 클래스라면 어떤 클래스를 상속했든 같은 타입으로 취급된다
+
+### 인터페이스의 장점
+
+1. **기존 클래스에도 손쉽게 새로운 인터페이스를 구현해넣을 수 있다**
+
+Java
+
+```
+// Comparable을 구현하도록 기존 클래스를 수정하는 것은 간단하다
+public class Employee implements Comparable<Employee> {
+    private String name;
+    private int salary;
+    
+    @Override
+    public int compareTo(Employee other) {
+        return Integer.compare(this.salary, other.salary);
+    }
+}
+```
+
+2. **인터페이스는 믹스인(mixin) 정의에 안성맞춤이다**  
+    믹스인이란 클래스가 구현할 수 있는 타입으로, 주된 타입 외에도 특정 선택적 행위를 제공한다고 선언하는 효과를 줍니다.
+
+Java
+
+```
+public class Singer implements Comparable<Singer> {
+    @Override
+    public int compareTo(Singer other) {
+        return this.name.compareTo(other.name);
+    }
+}
+```
+
+3. **인터페이스로는 계층구조가 없는 타입 프레임워크를 만들 수 있다**
+
+Java
+
+```
+public interface Singer {
+    AudioClip sing(Song s);
+}
+
+public interface Songwriter {
+    Song compose(int chartPosition);
+}
+
+// 가수 겸 작곡가
+public interface SingerSongwriter extends Singer, Songwriter {
+    AudioClip strum();
+    void actSensitive();
+}
+```
+
+4. **래퍼 클래스 관용구와 함께 사용하면 인터페이스는 기능을 향상시키는 안전하고 강력한 수단이 된다**
+
+### 디폴트 메서드 제공
+
+Java
+
+```
+public interface Calculator {
+    double calculate(double x, double y);
+    
+    // 디폴트 메서드
+    default double sqrt(double a) {
+        return Math.sqrt(a);
+    }
+}
+```
+
+### 인터페이스와 추상 골격 구현 클래스
+
+인터페이스와 추상 골격 구현(skeletal implementation) 클래스를 함께 제공하는 식으로 인터페이스와 추상 클래스의 장점을 모두 취할 수 있습니다.
+
+Java
+
+```
+// 인터페이스
+public interface List<E> {
+    boolean add(E e);
+    E get(int index);
+    // ... 기타 메서드들
+}
+
+// 골격 구현 클래스
+public abstract class AbstractList<E> implements List<E> {
+    // 변하지 않는 핵심 메서드들을 구현
+    public boolean addAll(int index, Collection<? extends E> c) {
+        boolean modified = false;
+        for (E e : c) {
+            add(index++, e);
+            modified = true;
+        }
+        return modified;
+    }
+    
+    // 하위 클래스에서 구현해야 하는 메서드는 abstract로 선언
+    public abstract E get(int index);
+    public abstract boolean add(E e);
+}
+```
+
+### 골격 구현 클래스 작성 방법
+
+Java
+
+```
+// 1단계: 인터페이스를 잘 정의한다
+public interface Vending {
+    void start();
+    void chooseProduct(int productId);
+    void stop();
+    boolean isRunning();
+}
+
+// 2단계: 골격 구현 클래스를 작성한다
+public abstract class AbstractVending implements Vending {
+    private boolean running = false;
+    
+    @Override
+    public void start() {
+        running = true;
+    }
+    
+    @Override
+    public void stop() {
+        running = false;
+    }
+    
+    @Override
+    public boolean isRunning() {
+        return running;
+    }
+    
+    // 하위 클래스가 구현해야 하는 메서드
+    @Override
+    public abstract void chooseProduct(int productId);
+}
+```
+
+## 아이템 21. 인터페이스는 구현하는 쪽을 생각해 설계하라
+
+### 디폴트 메서드의 위험성
+
+Java 8에서 기존 인터페이스에 메서드를 추가할 수 있도록 디폴트 메서드가 도입되었지만, 위험이 완전히 사라진 것은 아닙니다.
+
+Java
+
+```
+// Collection 인터페이스에 추가된 디폴트 메서드
+default boolean removeIf(Predicate<? super E> filter) {
+    Objects.requireNonNull(filter);
+    boolean removed = false;
+    final Iterator<E> each = iterator();
+    while (each.hasNext()) {
+        if (filter.test(each.next())) {
+            each.remove();
+            removed = true;
+        }
+    }
+    return removed;
+}
+```
+
+### 디폴트 메서드의 문제점
+
+1. **모든 구현체와 잘 어우러지는 디폴트 메서드를 작성하기는 어렵다**
+2. **디폴트 메서드는 컴파일에 성공하더라도 기존 구현체에 런타임 오류를 일으킬 수 있다**
+
+### 인터페이스 설계 시 주의사항
+
+- 인터페이스를 설계할 때는 여전히 세심한 주의를 기울여야 한다
+- 디폴트 메서드로 기존 인터페이스에 새 메서드를 추가하는 일은 꼭 필요한 경우가 아니면 피해야 한다
+- 새로운 인터페이스라면 릴리스 전에 반드시 테스트를 거쳐야 한다
+
+## 아이템 22. 인터페이스는 타입을 정의하는 용도로만 사용하라
+
+### 인터페이스의 올바른 용도
+
+인터페이스는 자신을 구현한 클래스의 인스턴스를 참조할 수 있는 타입 역할을 합니다. 클래스가 어떤 인터페이스를 구현한다는 것은 자신의 인스턴스로 무엇을 할 수 있는지를 클라이언트에 얘기해주는 것입니다.
+
+### 안티패턴: 상수 인터페이스
+
+Java
+
+```
+// 따라 하지 말 것! - 상수 인터페이스 안티패턴
+public interface PhysicalConstants {
+    // 아보가드로 수 (1/몰)
+    static final double AVOGADROS_NUMBER = 6.022_140_857e23;
+    
+    // 볼츠만 상수 (J/K)
+    static final double BOLTZMANN_CONSTANT = 1.380_648_52e-23;
+    
+    // 전자 질량 (kg)
+    static final double ELECTRON_MASS = 9.109_383_56e-31;
+}
+```
+
+### 상수를 공개하는 올바른 방법
+
+Java
+
+```
+// 1. 클래스나 인터페이스 자체에 추가
+public class Integer {
+    public static final int MIN_VALUE = 0x80000000;
+    public static final int MAX_VALUE = 0x7fffffff;
+    // ...
+}
+
+// 2. 열거 타입으로 만들기
+public enum Planet {
+    MERCURY(3.302e+23, 2.439e6),
+    VENUS(4.869e+24, 6.052e6),
+    EARTH(5.975e+24, 6.378e6);
+    
+    private final double mass;
+    private final double radius;
+    
+    Planet(double mass, double radius) {
+        this.mass = mass;
+        this.radius = radius;
+    }
+}
+
+// 3. 인스턴스화할 수 없는 유틸리티 클래스
+public class PhysicalConstants {
+    private PhysicalConstants() { }  // 인스턴스화 방지
+    
+    public static final double AVOGADROS_NUMBER = 6.022_140_857e23;
+    public static final double BOLTZMANN_CONSTANT = 1.380_648_52e-23;
+    public static final double ELECTRON_MASS = 9.109_383_56e-31;
+}
+```
+
+## 아이템 23. 태그 달린 클래스보다는 클래스 계층구조를 활용하라
+
+### 태그 달린 클래스의 문제점
+
+태그 달린 클래스는 두 가지 이상의 의미를 표현할 수 있으며, 그중 현재 표현하는 의미를 태그 값으로 알려주는 클래스입니다.
+
+Java
+
+```
+// 태그 달린 클래스 - 클래스 계층구조보다 훨씬 나쁘다!
+class Figure {
+    enum Shape { RECTANGLE, CIRCLE };
+    
+    // 태그 필드 - 현재 모양을 나타낸다
+    final Shape shape;
+    
+    // 다음 필드들은 모양이 사각형일 때만 쓰인다
+    double length;
+    double width;
+    
+    // 다음 필드는 모양이 원일 때만 쓰인다
+    double radius;
+    
+    // 원용 생성자
+    Figure(double radius) {
+        shape = Shape.CIRCLE;
+        this.radius = radius;
+    }
+    
+    // 사각형용 생성자
+    Figure(double length, double width) {
+        shape = Shape.RECTANGLE;
+        this.length = length;
+        this.width = width;
+    }
+    
+    double area() {
+        switch(shape) {
+            case RECTANGLE:
+                return length * width;
+            case CIRCLE:
+                return Math.PI * (radius * radius);
+            default:
+                throw new AssertionError(shape);
+        }
+    }
+}
+```
+
+### 클래스 계층구조로 변환
+
+Java
+
+```
+// 태그 달린 클래스를 클래스 계층구조로 변환
+abstract class Figure {
+    abstract double area();
+}
+
+class Circle extends Figure {
+    final double radius;
+    
+    Circle(double radius) { 
+        this.radius = radius; 
+    }
+    
+    @Override
+    double area() { 
+        return Math.PI * (radius * radius); 
+    }
+}
+
+class Rectangle extends Figure {
+    final double length;
+    final double width;
+    
+    Rectangle(double length, double width) {
+        this.length = length;
+        this.width = width;
+    }
+    
+    @Override
+    double area() { 
+        return length * width; 
+    }
+}
+
+// 정사각형도 지원하도록 확장
+class Square extends Rectangle {
+    Square(double side) {
+        super(side, side);
+    }
+}
+```
+
+### 클래스 계층구조의 장점
+
+1. 간결하고 명확하다
+2. 각 의미를 독립된 클래스에 담아 관련 없는 데이터 필드를 제거할 수 있다
+3. 살아 있는 코드만 남는다
+4. 각 클래스의 생성자가 모든 필드를 남김없이 초기화한다
+5. 타입 사이의 자연스러운 계층 관계를 반영할 수 있다
+
+## 아이템 24. 멤버 클래스는 되도록 static으로 만들라
+
+### 중첩 클래스의 종류
+
+중첩 클래스(nested class)는 다른 클래스 안에 정의된 클래스를 말하며, 네 가지 종류가 있습니다:
+
+1. **정적 멤버 클래스(static member class)**
+2. **비정적 멤버 클래스(nonstatic member class)**
+3. **익명 클래스(anonymous class)**
+4. **지역 클래스(local class)**
+
+### 정적 멤버 클래스
+
+Java
+
+```
+public class Calculator {
+    // 정적 멤버 클래스
+    public static class Operation {
+        public enum Type { PLUS, MINUS, MULTIPLY, DIVIDE }
+        
+        private final Type type;
+        private final double operand;
+        
+        public Operation(Type type, double operand) {
+            this.type = type;
+            this.operand = operand;
+        }
+        
+        public double apply(double value) {
+            switch (type) {
+                case PLUS: return value + operand;
+                case MINUS: return value - operand;
+                case MULTIPLY: return value * operand;
+                case DIVIDE: return value / operand;
+```
+text
+
+```
+            default: throw new AssertionError("Unknown operation: " + type);
+        }
+    }
+}
+
+public double calculate(double value, Operation... operations) {
+    for (Operation op : operations) {
+        value = op.apply(value);
+    }
+    return value;
+}
+```
+
+}
+
+// 사용 예  
+Calculator calc = new Calculator();  
+double result = calc.calculate(10,  
+new Calculator.Operation(Calculator.Operation.Type.PLUS, 5),  
+new Calculator.Operation(Calculator.Operation.Type.MULTIPLY, 2));
+
+text
+
+````
+
+### 비정적 멤버 클래스
+```java
+public class OuterClass {
+    private int outerField = 10;
+    
+    // 비정적 멤버 클래스
+    public class InnerClass {
+        public void printOuterField() {
+            // 바깥 클래스의 private 필드에 접근 가능
+            System.out.println(outerField);
+            // 바깥 인스턴스 참조: OuterClass.this
+            System.out.println(OuterClass.this.outerField);
+        }
+    }
+    
+    public InnerClass createInner() {
+        return new InnerClass();
+    }
+}
+
+// 사용 예
+OuterClass outer = new OuterClass();
+OuterClass.InnerClass inner = outer.createInner();
+// 또는
+OuterClass.InnerClass inner2 = outer.new InnerClass();
+````
+
+**중요한 차이점:**
+
+- 비정적 멤버 클래스의 인스턴스는 바깥 클래스의 인스턴스와 암묵적으로 연결됨
+- 비정적 멤버 클래스의 인스턴스 메서드에서 바깥 클래스의 메서드를 호출하거나 바깥 인스턴스의 참조를 가져올 수 있음
+- 비정적 멤버 클래스는 바깥 인스턴스 없이는 생성할 수 없음
+
+### 익명 클래스
+
+Java
+
+```
+public class ButtonExample {
+    public void addActionListener(Button button) {
+        // 익명 클래스 사용
+        button.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick() {
+                System.out.println("Button clicked!");
+            }
+        });
+    }
+    
+    // 람다로 대체 가능한 경우
+    public void addActionListenerWithLambda(Button button) {
+        button.setOnClickListener(() -> System.out.println("Button clicked!"));
+    }
+}
+```
+
+### 지역 클래스
+
+Java
+
+```
+public class LocalClassExample {
+    public void process(int[] numbers) {
+        // 지역 클래스
+        class NumberProcessor {
+            int countEvens() {
+                int count = 0;
+                for (int num : numbers) {
+                    if (num % 2 == 0) count++;
+                }
+                return count;
+            }
+        }
+        
+        NumberProcessor processor = new NumberProcessor();
+        System.out.println("짝수의 개수: " + processor.countEvens());
+    }
+}
+```
+
+### 정적 멤버 클래스 vs 비정적 멤버 클래스
+
+멤버 클래스가 바깥 인스턴스에 접근할 일이 없다면 무조건 static을 붙여서 정적 멤버 클래스로 만드는 것이 좋습니다. static을 생략하면:
+
+- 바깥 인스턴스로의 숨은 참조를 갖게 됨
+- 이 참조를 저장하려면 시간과 공간이 소비됨
+- 가비지 컬렉션이 바깥 클래스의 인스턴스를 수거하지 못하는 메모리 누수가 발생할 수 있음
+
+## 아이템 25. 톱레벨 클래스는 한 파일에 하나만 담으라
+
+### 여러 톱레벨 클래스를 한 파일에 담을 때의 문제점
+
+한 소스 파일에 여러 톱레벨 클래스를 선언하면 한 클래스를 여러 가지로 정의할 수 있고, 그중 어느 것을 사용할지는 어떤 소스 파일을 먼저 컴파일하냐에 따라 달라지는 위험이 있습니다.
+
+Java
+
+```
+// Main.java 파일
+public class Main {
+    public static void main(String[] args) {
+        System.out.println(Utensil.NAME + Dessert.NAME);
+    }
+}
+
+// Utensil.java 파일
+class Utensil {
+    static final String NAME = "pan";
+}
+
+class Dessert {
+    static final String NAME = "cake";
+}
+
+// Dessert.java 파일 (의도치 않게 같은 이름의 클래스 정의)
+class Utensil {
+    static final String NAME = "pot";
+}
+
+class Dessert {
+    static final String NAME = "pie";
+}
+```
+
+### 해결책
+
+톱레벨 클래스들을 서로 다른 소스 파일로 분리하는 것이 가장 좋습니다. 꼭 한 파일에 담고 싶다면 정적 멤버 클래스를 사용하는 방법을 고려하세요.
+
+Java
+
+```
+// 톱레벨 클래스들을 정적 멤버 클래스로 변환
+public class Test {
+    public static void main(String[] args) {
+        System.out.println(Utensil.NAME + Dessert.NAME);
+    }
+    
+    private static class Utensil {
+        static final String NAME = "pan";
+    }
+    
+    private static class Dessert {
+        static final String NAME = "cake";
+    }
+}
+```
+
+
+
 5장 제네릭  
 아이템 26. 로 타입은 사용하지 말라  
 아이템 27. 비검사 경고를 제거하라  
