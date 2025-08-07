@@ -166,7 +166,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 405.5
+    "width": 405.5,
+    "collapsed": true
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -179,7 +180,7 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "2af05fbbce9ecdf2",
+  "active": "92351ba827ca7cfc",
   "lastOpenFiles": [
     "Effective JAVA/Effective JAVA.md",
     "Java의 정석 복습/자바의 정석 복습.md",
