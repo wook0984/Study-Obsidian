@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Java의 정석 복습/자바의 정석 ch.01 복습.md",
+                "file": "Java의 정석 복습/자바의 정석 복습.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "자바의 정석 ch.01 복습"
+              "title": "자바의 정석 복습"
             }
           }
         ]
@@ -166,8 +166,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 405.5,
-    "collapsed": true
+    "width": 405.5
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -180,10 +179,10 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "92351ba827ca7cfc",
+  "active": "2af05fbbce9ecdf2",
   "lastOpenFiles": [
     "Effective JAVA/Effective JAVA.md",
-    "Java의 정석 복습/자바의 정석 ch.01 복습.md",
+    "Java의 정석 복습/자바의 정석 복습.md",
     "Java의 정석 복습",
     "SQL/친절한 SQL튜닝 정리노트 (1장).md",
     "Effective JAVA",
