@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "자료구조의 이해/PART 02 리스트.md",
+                "file": "SQL/친절한 SQL튜닝 정리노트 (1장).md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "PART 02 리스트"
+              "title": "친절한 SQL튜닝 정리노트 (1장)"
             }
           }
         ]
@@ -78,7 +78,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 279.5
+    "width": 200
   },
   "right": {
     "id": "def57470c97bfe30",
@@ -182,12 +182,12 @@
   },
   "active": "92351ba827ca7cfc",
   "lastOpenFiles": [
+    "자료구조의 이해/PART 02 리스트.md",
     "Effective JAVA/Effective JAVA.md",
     "SQL/SQL 튜닝할 때 팁.md",
     "자료구조의 이해/PART 05 탐색 트리.md",
     "자료구조의 이해/PART 04 트리.md",
     "자료구조의 이해/PART 03 스택과 큐.md",
-    "자료구조의 이해/PART 02 리스트.md",
     "자료구조의 이해/PART 01 자료구조를 배우기 위한 준비.md",
     "SQL/친절한 SQL튜닝 정리노트 (5장).md",
     "Java의 정석 복습/자바의 정석 복습.md",
