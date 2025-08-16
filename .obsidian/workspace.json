@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "SQL/친절한 SQL튜닝 정리노트 (1장).md",
+                "file": "Java의 정석 복습/자바의 정석 복습 2.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "친절한 SQL튜닝 정리노트 (1장)"
+              "title": "자바의 정석 복습 2"
             }
           }
         ]
@@ -83,91 +83,9 @@
   "right": {
     "id": "def57470c97bfe30",
     "type": "split",
-    "children": [
-      {
-        "id": "ae6caa86fe7f3fdb",
-        "type": "tabs",
-        "children": [
-          {
-            "id": "8c003b27e78e8143",
-            "type": "leaf",
-            "state": {
-              "type": "backlink",
-              "state": {
-                "file": "Welcome 환영합니다!.md",
-                "collapseAll": false,
-                "extraContext": false,
-                "sortOrder": "alphabetical",
-                "showSearch": false,
-                "searchQuery": "",
-                "backlinkCollapsed": false,
-                "unlinkedCollapsed": true
-              },
-              "icon": "links-coming-in",
-              "title": "Backlinks for Welcome 환영합니다!"
-            }
-          },
-          {
-            "id": "61e2a9dbdfb7ea04",
-            "type": "leaf",
-            "state": {
-              "type": "outgoing-link",
-              "state": {
-                "file": "Welcome 환영합니다!.md",
-                "linksCollapsed": false,
-                "unlinkedCollapsed": true
-              },
-              "icon": "links-going-out",
-              "title": "Outgoing links from Welcome 환영합니다!"
-            }
-          },
-          {
-            "id": "01c20f8308099812",
-            "type": "leaf",
-            "state": {
-              "type": "tag",
-              "state": {
-                "sortOrder": "frequency",
-                "useHierarchy": true,
-                "showSearch": false,
-                "searchQuery": ""
-              },
-              "icon": "lucide-tags",
-              "title": "Tags"
-            }
-          },
-          {
-            "id": "99134a961f6de59b",
-            "type": "leaf",
-            "state": {
-              "type": "outline",
-              "state": {
-                "file": "Welcome 환영합니다!.md",
-                "followCursor": false,
-                "showSearch": false,
-                "searchQuery": ""
-              },
-              "icon": "lucide-list",
-              "title": "Outline of Welcome 환영합니다!"
-            }
-          },
-          {
-            "id": "5ba5538e142bc3fb",
-            "type": "leaf",
-            "state": {
-              "type": "git-view",
-              "state": {},
-              "icon": "git-pull-request",
-              "title": "Source Control"
-            }
-          }
-        ],
-        "currentTab": 4
-      }
-    ],
+    "children": [],
     "direction": "horizontal",
-    "width": 405.5,
-    "collapsed": true
+    "width": 200
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -182,6 +100,9 @@
   },
   "active": "92351ba827ca7cfc",
   "lastOpenFiles": [
+    "Java의 정석 복습/자바의 정석 복습 1.md",
+    "Java의 정석 복습/자바의 정석 복습 2.md",
+    "SQL/친절한 SQL튜닝 정리노트 (1장).md",
     "자료구조의 이해/PART 02 리스트.md",
     "Effective JAVA/Effective JAVA.md",
     "SQL/SQL 튜닝할 때 팁.md",
@@ -190,10 +111,8 @@
     "자료구조의 이해/PART 03 스택과 큐.md",
     "자료구조의 이해/PART 01 자료구조를 배우기 위한 준비.md",
     "SQL/친절한 SQL튜닝 정리노트 (5장).md",
-    "Java의 정석 복습/자바의 정석 복습.md",
     "자료구조의 이해",
     "Java의 정석 복습",
-    "SQL/친절한 SQL튜닝 정리노트 (1장).md",
     "Effective JAVA",
     "SQL/친절한 SQL튜닝 정리노트 (2장).md",
     "SQL/친절한 SQL튜닝 정리노트 (3장).md",
