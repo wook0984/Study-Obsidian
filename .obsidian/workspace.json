@@ -83,9 +83,80 @@
   "right": {
     "id": "def57470c97bfe30",
     "type": "split",
-    "children": [],
+    "children": [
+      {
+        "id": "c10d1ba9d88a9237",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "c15070deb621e1fe",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "Java의 정석 복습/자바의 정석 복습 2.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks for 자바의 정석 복습 2"
+            }
+          },
+          {
+            "id": "b91c4391319cc994",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "Java의 정석 복습/자바의 정석 복습 2.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links from 자바의 정석 복습 2"
+            }
+          },
+          {
+            "id": "eabcf70483225061",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "c676821a05507e12",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "Java의 정석 복습/자바의 정석 복습 2.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline of 자바의 정석 복습 2"
+            }
+          }
+        ]
+      }
+    ],
     "direction": "horizontal",
-    "width": 200
+    "width": 200,
+    "collapsed": true
   },
   "left-ribbon": {
     "hiddenItems": {
