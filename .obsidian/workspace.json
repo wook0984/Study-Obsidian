@@ -20,8 +20,21 @@
               "icon": "lucide-file",
               "title": "친절한 SQL튜닝 정리노트 (4장)"
             }
+          },
+          {
+            "id": "022ee78743ea27f9",
+            "type": "leaf",
+            "state": {
+              "type": "release-notes",
+              "state": {
+                "currentVersion": "1.9.10"
+              },
+              "icon": "lucide-book-up",
+              "title": "Release Notes 1.9.10"
+            }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -160,6 +173,7 @@
   },
   "left-ribbon": {
     "hiddenItems": {
+      "bases:Create new base": false,
       "obsidian-git:Open Git source control": false,
       "switcher:Open quick switcher": false,
       "graph:Open graph view": false,
@@ -169,7 +183,7 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "92351ba827ca7cfc",
+  "active": "022ee78743ea27f9",
   "lastOpenFiles": [
     "SQL/친절한 SQL튜닝 정리노트 (1장).md",
     "SQL/문제 및 해설.md",
