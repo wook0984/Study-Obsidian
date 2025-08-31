@@ -538,7 +538,7 @@ create unique index orders_pk on orders(id) reverse;
 
 ---
 
-## 덧붙임: 내가 정리한 체크리스트
+## 추가로 내가 정리한 체크리스트
 
 - 대량 DML 이후 통계를 갱신해 옵티마이저가 최신 정보를 쓰도록 한다. 파티션 테이블은 파티션 단위 또는 증분 통계를 고려한다.
 - Direct-path/병렬 DML을 사용할 때 TEMP/UNDO/REDO와 I/O 대역폭을 사전에 점검한다. 적재 도중 공간 부족으로 실패하면 되돌리는 비용이 훨씬 크다.
