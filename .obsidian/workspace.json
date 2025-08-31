@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "SQL/친절한 SQL튜닝 정리노트 (6장).md",
+                "file": "SQL/친절한 SQL튜닝 정리노트 (7장).md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "친절한 SQL튜닝 정리노트 (6장)"
+              "title": "친절한 SQL튜닝 정리노트 (7장)"
             }
           }
         ]
@@ -182,9 +182,11 @@
   },
   "active": "92351ba827ca7cfc",
   "lastOpenFiles": [
+    "SQL/SQL 튜닝할 때 팁.md",
+    "SQL/친절한 SQL튜닝 정리노트 (6장).md",
+    "SQL/친절한 SQL튜닝 정리노트 (7장).md",
     "SQL/Oracle SQL 실습 및 정리.md",
     "SQL/친절한 SQL튜닝 정리노트 (5장).md",
-    "SQL/친절한 SQL튜닝 정리노트 (6장).md",
     "Java의 정석 복습/자바의 정석 복습 3.md",
     "Java의 정석 복습/자바의 정석 복습 2.md",
     "Java의 정석 복습/자바의 정석 복습 1.md",
@@ -196,7 +198,6 @@
     "SQL/친절한 SQL튜닝 정리노트 (1장).md",
     "SQL/문제 및 해설.md",
     "자료구조의 이해/PART 02 리스트.md",
-    "SQL/SQL 튜닝할 때 팁.md",
     "자료구조의 이해/PART 05 탐색 트리.md",
     "자료구조의 이해/PART 04 트리.md",
     "자료구조의 이해/PART 03 스택과 큐.md",
