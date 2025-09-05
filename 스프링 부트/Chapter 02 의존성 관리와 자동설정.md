@@ -1,59 +1,48 @@
-## Chapter 02: 의존성 관리와 자동설정
+## 1. 스프링 부트의 의존성 관리
 
-### 1. 스프링 부트의 의존성 관리
+### 1.1 스타터로 의존성 관리하기
 
-#### 1.1 스타터로 의존성 관리하기
+스프링 부트 스타터는 관련된 라이브러리를 묶어놓은 패키지다. 이거는 회사에서 업무별로 필요한 사무용품을 세트로 제공하는 것과 같다.
 
-**스타터(Starter)**는 필요한 도구들을 묶어놓은 패키지다. 이거는 회사에서 "회의실 예약 시스템"을 쓰려면 달력, 알림, 이메일 기능이 다 필요한데, 이걸 "회의실 패키지"로 한 번에 설치하는 것과 같다.
-
-주요 스타터들:
+주요 스타터 패키지:
 
 XML
 
 ```
-<!-- 웹 개발 스타터 -->
+<!-- 웹 개발용 스타터 -->
 <dependency>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-web</artifactId>
 </dependency>
-<!-- 이거 하나로 다음이 모두 포함된다:
-     - Spring MVC (웹 프레임워크)
-     - Tomcat (웹 서버)
-     - Jackson (JSON 변환)
-     - Validation (입력값 검증)
--->
 
-<!-- 데이터베이스 스타터 -->
+<!-- 데이터베이스 연동용 스타터 -->
 <dependency>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-data-jpa</artifactId>
 </dependency>
-<!-- 이거 하나로 다음이 모두 포함된다:
-     - Hibernate (ORM)
-     - Spring Data JPA
-     - Spring Transaction
--->
 
-<!-- 보안 스타터 -->
+<!-- 보안 기능용 스타터 -->
 <dependency>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-security</artifactId>
 </dependency>
 ```
 
-#### 1.2 의존성 재정의하기
+이렇게 한 줄만 추가하면 관련된 모든 라이브러리가 자동으로 포함된다. 예를 들어 `spring-boot-starter-web`은 웹 서버, MVC 프레임워크, JSON 처리 등 웹 개발에 필요한 모든 것을 포함한다.
 
-**의존성 재정의**는 기본 패키지에서 특정 부분만 바꾸는 거다. 이거는 회사 노트북에 기본으로 깔린 오피스 2019를 2021로 업그레이드하는 것과 같다.
+### 1.2 의존성 재정의하기
+
+스프링 부트가 관리하는 기본 의존성을 변경할 수 있다. 이거는 회사에서 제공하는 기본 장비 대신 내가 원하는 다른 장비로 바꾸는 것과 같다.
 
 XML
 
 ```
-<!-- 스프링 부트가 관리하는 버전 재정의 -->
 <properties>
-    <mysql.version>8.0.33</mysql.version>  <!-- MySQL 버전 변경 -->
+    <java.version>17</java.version>
+    <mysql.version>8.0.30</mysql.version>  <!-- MySQL 버전 지정 -->
 </properties>
 
-<!-- 특정 라이브러리 제외하고 다른 것 사용 -->
+<!-- 특정 라이브러리 제외하기 -->
 <dependency>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-web</artifactId>
@@ -64,93 +53,103 @@ XML
         </exclusion>
     </exclusions>
 </dependency>
-<!-- Tomcat 대신 Jetty 사용 -->
+
+<!-- 대체 라이브러리 추가 -->
 <dependency>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-jetty</artifactId>
 </dependency>
 ```
 
-### 2. 스프링 부트의 자동설정
+이 예시는 기본 웹 서버인 Tomcat 대신 Jetty를 사용하도록 설정한 것이다.
 
-#### 2.1 자동설정 이해하기
+## 2. 스프링 부트의 자동설정
 
-**자동설정(Auto Configuration)**은 스프링 부트가 알아서 필요한 설정을 해주는 거다. 이거는 새 직원이 왔을 때 IT팀이 알아서 이메일 계정, 메신저, 사내 시스템 접속 권한을 다 설정해주는 것과 같다.
+### 2.1 자동설정 이해하기
 
-자동설정이 하는 일:
+스프링 부트의 자동설정은 클래스패스에 있는 라이브러리를 검사하여 필요한 설정을 자동으로 적용한다. 이거는 회사 컴퓨터에 필요한 프로그램이 자동으로 설치되고 설정되는 것과 같다.
 
-1. **클래스패스 스캔**: 어떤 라이브러리가 있는지 확인한다
-2. **조건 확인**: 필요한 조건이 충족되는지 확인한다
-3. **빈 생성**: 필요한 객체들을 자동으로 만든다
+예를 들어:
 
-Java
+- H2 데이터베이스 라이브러리가 있으면 자동으로 인메모리 데이터베이스를 설정한다
+- Thymeleaf 라이브러리가 있으면 자동으로 템플릿 엔진을 설정한다
+- Spring Security 라이브러리가 있으면 자동으로 기본 보안 설정을 적용한다
 
-```
-// 자동설정 예시
-@Configuration
-@ConditionalOnClass(DataSource.class)  // DataSource 클래스가 있으면
-@EnableConfigurationProperties(DataSourceProperties.class)
-public class DataSourceAutoConfiguration {
-    
-    @Bean
-    @ConditionalOnMissingBean  // 다른 DataSource가 없으면
-    public DataSource dataSource(DataSourceProperties properties) {
-        // 자동으로 DataSource를 만든다
-        return properties.initializeDataSourceBuilder().build();
-    }
-}
-```
+자동설정의 작동 원리:
 
-#### 2.2 사용자 정의 스타터
+1. `@SpringBootApplication`에 포함된 `@EnableAutoConfiguration` 어노테이션이 자동설정을 활성화한다
+2. 스프링 부트는 META-INF/spring.factories 파일에 나열된 자동설정 클래스를 로드한다
+3. 각 자동설정 클래스는 특정 조건을 확인하고, 조건이 맞으면 빈을 등록한다
 
-**사용자 정의 스타터**는 우리 회사만의 특별한 패키지를 만드는 거다. 예를 들어 우리 회사만 쓰는 "전자결재 시스템 패키지"를 만드는 거다.
+### 2.2 사용자 정의 스타터
+
+회사에서 자주 사용하는 기능을 모아 자체 스타터를 만들 수 있다. 이거는 회사 전용 업무 도구 세트를 만드는 것과 같다.
+
+사용자 정의 스타터 만들기:
+
+1. 자동설정 클래스 작성:
 
 Java
 
 ```
-// 1. 자동설정 클래스 만들기
 @Configuration
-@ConditionalOnProperty(name = "company.approval.enabled", havingValue = "true")
-public class ApprovalSystemAutoConfiguration {
+@ConditionalOnClass(EmployeeService.class)
+public class EmployeeAutoConfiguration {
     
     @Bean
-    public ApprovalService approvalService() {
-        return new ApprovalService();
+    @ConditionalOnMissingBean
+    public EmployeeService employeeService() {
+        return new DefaultEmployeeService();
     }
     
     @Bean
-    public ApprovalController approvalController(ApprovalService service) {
-        return new ApprovalController(service);
+    @ConditionalOnProperty(name = "company.reports.enabled", havingValue = "true")
+    public ReportGenerator reportGenerator() {
+        return new ExcelReportGenerator();
     }
 }
+```
 
-// 2. spring.factories 파일에 등록
-// META-INF/spring.factories
+2. META-INF/spring.factories 파일 작성:
+
+text
+
+```
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-com.mycompany.approval.ApprovalSystemAutoConfiguration
+com.mycompany.EmployeeAutoConfiguration
 ```
 
-#### 2.3 자동설정 재정의하기
+이렇게 하면 이 스타터를 사용하는 모든 프로젝트에서 직원 관리와 보고서 생성 기능을 자동으로 사용할 수 있다.
 
-**자동설정 재정의**는 기본 설정을 우리 회사에 맞게 바꾸는 거다:
+### 2.3 자동설정 재정의하기
+
+스프링 부트의 자동설정을 필요에 맞게 재정의할 수 있다. 이거는 회사의 기본 업무 방식을 프로젝트에 맞게 수정하는 것과 같다.
 
 Java
 
 ```
 @Configuration
-public class CustomWebConfig {
+public class CustomWebConfiguration {
     
     @Bean
     public WebMvcConfigurer webMvcConfigurer() {
         return new WebMvcConfigurer() {
             @Override
-            public void addCorsMappings(CorsRegistry registry) {
-                // CORS 설정을 우리 회사에 맞게 변경한다
-                registry.addMapping("/api/**")
-                        .allowedOrigins("https://mycompany.com")
-                        .allowedMethods("GET", "POST", "PUT", "DELETE");
+            public void addFormatters(FormatterRegistry registry) {
+                // 날짜 형식 변환기 추가
+                registry.addConverter(new StringToDateConverter());
+            }
+            
+            @Override
+            public void addInterceptors(InterceptorRegistry registry) {
+                // 로그인 체크 인터셉터 추가
+                registry.addInterceptor(new LoginCheckInterceptor())
+                       .addPathPatterns("/**")
+                       .excludePathPatterns("/login", "/static/**");
             }
         };
     }
 }
 ```
+
+이 예시는 웹 MVC 설정을 커스터마이징하여 날짜 변환기와 로그인 체크 인터셉터를 추가한 것이다.
